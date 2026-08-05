@@ -1,56 +1,6 @@
--- ============================ MONO MM2 · CHANGELOG · 7/31/2026 ============================
---
--- ADDED
---   * Fling Player - pick anyone from the Teleport tab and launch them
---   * Chams - the old through-wall body glow, now its own separate toggle
---   * Dropped Gun ESP & Distance - you can see the sheriff's dropped gun through walls
---   * Auto Grab Dropped Gun - instantly teleports you to the dropped gun and teleports you back to your original spot
---   * Instant Knife Throw - skips the wind up and the flight time, the knife lands the moment you press throw
---   * Lookup tab - full player lookup with their Roblox join date, account age, friends,
---     followers, plus their MM2 level, role, perk and how many Godlys and Ancients they own
---   * View Full Inventory - opens MM2's own profile window for anyone in the server
---
--- CHANGED
---   * Box ESP is now a real 2D box that tracks each player. What used to be
---     called Box ESP was really chams, so it moved to the new Chams toggle
---     and Box Fill became Chams Fill
---   * Kill Feed now works in every role. It only ever fired for the murderer
---     and sheriff before, so innocents never saw a kill feed
---   * Teleport To Player works again, it used to always say it could not
---     find the player no matter who you picked
---   * Server Hop works again - it used to always say there were no open
---     servers
---   * Silent Aim is now Gun and Knife Silent Aim and works with both weapons
---   * Trigger Bot is now Gun Trigger Bot and will not fire at people it cannot see
---   * Auto Collect Coins now stops on its own once your coin bag is full, and no
---     longer leaves you stuck inside a wall or the floor when it does
---   * Auto Kill no longer switches itself on, and no longer silently stops
---     working for the rest of the round. It also leads moving targets now
---     instead of only ever hitting people who stand still
---   * Role detection now works even after you pick up the dropped gun
---   * Murderer Notify is now a notification that stays on screen and counts the
---     distance down as they get closer, instead of a one off popup
---   * ESP no longer draws on top of the menu
---   * Tooltips are hover based now, so they stop overlapping longer options
---   * Search now looks through every tab instead of only the one you are on
---   * UI Settings is far less cluttered - the theme and config sections only keep
---     the parts people actually use
---   * The menu hides itself better - every UI name is randomised each run
---   * Throw Knife Through Walls / Shoot Gun Through Walls works again, and now
---     needs you to actually aim at someone rather than snapping for you
---   * Better mobile support - knife throwing and flying both work on touch now
---   * General optimisation pass, the ESP and coin farm do a lot less work per frame
---
--- REMOVED
---   * Auto-Combat on Role - Auto Kill already does exactly the same thing
---   * Collect Speed - anything above the default just gets you kicked
---   * No Fog - MM2 has no real fog to remove
---
--- =============================================================================
+ -- =============================================================================
 
 -- UI made using the Obsidian UI Library by deividcomsono. Obsidian is licensed under the MIT License.
--- This script is almost entirely made by AI so you may run into issues, in this case please report what isnt working or issues you find at https://robloxscripts.com/script/mono-mm2-script using the "Report not working" button.
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
 
 local Players          = game:GetService("Players")
 local RunService       = game:GetService("RunService")
@@ -106,7 +56,7 @@ do
     local left=#paths
     for i,p in ipairs(paths) do
         task.spawn(function()
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
             local ok,res=pcall(function() return game:HttpGet(repo..p) end)
             srcs[i]=ok and res or nil
             left-=1
@@ -157,12 +107,12 @@ end
 
 local MM2_PLACE=142823291
 local MM2_UNIVERSE=66654135
-local CONFIG_FOLDER="MONO_MM2"
+local CONFIG_FOLDER="TUNG_MM2"
 local hopFallbackPlace
 local function fetchServers(placeId,maxPages)
     local out,cursor={},nil
     for _=1,(maxPages or 4) do
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
         local url="https://games.roblox.com/v1/games/"..placeId.."/servers/Public?sortOrder=Desc&limit=100"
         if cursor then url=url.."&cursor="..HttpService:UrlEncode(cursor) end
         local ok,res=pcall(function() return game:HttpGet(url) end)
@@ -218,14 +168,14 @@ local function applySavedTheme()
 end
 
 if game.GameId~=MM2_UNIVERSE then
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
     applySavedTheme()
-    local W=Library:CreateWindow({Title="MONO",Footer="MM2 · Obsidian",Center=true,AutoShow=true,ShowCustomCursor=true})
+    local W=Library:CreateWindow({Title="TUNG HUB",Footer="MM2 · Obsidian",Center=true,AutoShow=true,ShowCustomCursor=true})
     hideWindow()
     W:AddTab("Info","alert-triangle")
     W:AddDialog("WrongGame",{
         Title="Unsupported Game",
-        Description="MONO only supports Murder Mystery 2. Click \"Join MM2\" to teleport to a Murder Mystery 2 server.",
+        Description = tunghub only supports Murder Mystery 2. Click \"Join MM2\" to teleport to a Murder Mystery 2 server.",
         OutsideClickDismiss=false,
         FooterButtons={
             {Id="Join",Title="Join MM2",Variant="Primary",Callback=function() joinMM2() end},
@@ -274,7 +224,7 @@ end
 local function computeAlive(plr)
     local d=roundData(plr); if d and d.Dead==true then return false end
     local ch=plr.Character; local hum=ch and ch:FindFirstChildOfClass("Humanoid")
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
     return ch and hum and hum.Health>0 and getHRP(ch)
 end
 local CACHE_TTL=0.05
@@ -330,7 +280,7 @@ local function knifeKill(ev,targetChar)
     if not ht then return end
     for _,pn in ipairs(KNIFE_PARTS) do local part=targetChar:FindFirstChild(pn); if part then ht:FireServer(part) end end
     if ks then ks:FireServer() end
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
 end
 local function shootGunAt(pos,throughWalls)
     if not pos then return end
@@ -386,7 +336,7 @@ local function nearest(list)
     return best
 end
 local function fovTarget()
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
     local mr=myRole()
     if not (mr=="Murderer" or isGunRole(mr)) then return nil end
     local center=mousePos(); local best,bd
@@ -442,7 +392,7 @@ bind(RunService.RenderStepped,function()
         if t then local th=t.Character:FindFirstChild("Head") or getHRP(t.Character)
             if th then Camera.CFrame=Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position,th.Position),0.45) end end
     end
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
 end)
 local silentAimPos
 local function crosshairEnemyPos(radius)
@@ -498,7 +448,7 @@ local function aimRay()
     local x,y=m.X,m.Y
     local ml=LocalPlayer.PlayerScripts and LocalPlayer.PlayerScripts:FindFirstChild("MouseLock")
     if ml and ml:GetAttribute("Enabled")==true and UserInputService.PreferredInput~=Enum.PreferredInput.Gamepad then
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
         local vs=Camera.ViewportSize
         x,y=vs.X/2,vs.Y/2
     end
@@ -554,7 +504,7 @@ pcall(function()
                             if retarget then a[2]=CFrame.new(retarget) end
                             if walls and retarget and myHrpPos and typeof(a[1])=="CFrame" then
                                 local tp=a[2].Position
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
                                 local d=tp-myHrpPos
                                 d=(d.Magnitude>0.1) and d.Unit or Vector3.new(0,0,-1)
                                 a[1]=CFrame.new(tp-d*2,tp)
@@ -610,7 +560,7 @@ local function throwKnifeNow(ignoreCooldown)
 end
 bind(UserInputService.InputBegan,function(input,gpe)
     if gpe then return end
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
     if input.UserInputType~=Enum.UserInputType.MouseButton2 then return end
     if flags.instantKnife then throwKnifeNow(false) end
 end)
@@ -666,7 +616,7 @@ end)
 local charParts,charPartsFor={},nil
 local function refreshCharParts(ch)
     charParts={}
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
     if not ch then charPartsFor=nil return end
     for _,p in ipairs(ch:GetDescendants()) do
         if p:IsA("BasePart") then charParts[#charParts+1]=p end
@@ -722,7 +672,7 @@ local function tagOf(role) return role=="Murderer" and "[M]" or isGunRole(role) 
 local guiRects={}
 local function refreshGuiRects()
     table.clear(guiRects)
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
     local sg=Library.ScreenGui
     if not sg then return end
     local function add(o)
@@ -778,7 +728,7 @@ end end)
 
 local boxStore={}
 local function clearBox(plr)
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
     local b=boxStore[plr]
     if b then for _,l in ipairs(b) do pcall(function() l:Remove() end) end; boxStore[plr]=nil end
 end
@@ -834,7 +784,7 @@ bind(RunService.RenderStepped,function()
                     local l=b[i]
                     l.From,l.To,l.Color,l.Visible=seg[1],seg[2],col,true
                 end
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
             else
                 for _,l in ipairs(b) do l.Visible=false end
             end
@@ -890,7 +840,7 @@ local function coinTaken(d) local c=d:GetAttribute("Collected"); return c==true 
 local function freshCoins() local out={}; local c=getCoinContainer()
     if c then for _,d in ipairs(c:GetChildren()) do if d:IsA("BasePart") and (d:GetAttribute("CoinID")~=nil or d.Name=="Coin_Server") and not coinTaken(d) then out[#out+1]=d end end end
     return out end
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
 local coinCache={}
 task.spawn(function() while not Library.Unloaded do coinCache=freshCoins(); task.wait(0.5) end end)
 local coinEspStore={}
@@ -946,7 +896,7 @@ task.spawn(function()
                         local dir=coin.Position-hrp.Position
                         if dir.Magnitude>2 then hrp.CFrame=CFrame.new(hrp.Position+dir.Unit*math.min(dir.Magnitude,spd*dt)); hrp.AssemblyLinearVelocity=Vector3.zero end
                         if typeof(firetouchinterest)=="function" then pcall(function() firetouchinterest(hrp,coin,0);firetouchinterest(hrp,coin,1) end) end
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
                     end
                 else target=nil; task.wait(0.1) end
             else task.wait(0.1) end
@@ -1002,7 +952,7 @@ task.spawn(function() while not Library.Unloaded do
         if gunEspBB then gunEspBB.Enabled=false end
     end
     task.wait(0.25)
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
 end end)
 local grabbing=false
 local function grabGunOnce()
@@ -1058,7 +1008,7 @@ local function setFPSBoost(on)
             for _,e in ipairs(workspace:GetDescendants()) do if not (flags.fpsBoost and fpsStore) then return end fxKill(e,s); n+=1; if n%900==0 then RunService.Heartbeat:Wait() end end
         end)
     elseif fpsStore then
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
         local s=fpsStore.changed; Lighting.GlobalShadows=fpsStore.shadows
         local terrain=workspace:FindFirstChildOfClass("Terrain")
         if terrain and fpsStore.water then terrain.WaterWaveSize,terrain.WaterWaveSpeed,terrain.WaterReflectance=fpsStore.water[1],fpsStore.water[2],fpsStore.water[3] end
@@ -1114,7 +1064,7 @@ local function resolvePlayer(v)
     return nil
 end
 
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
 local FLING_SECONDS=0.9
 local function flingPlayer(p)
     if flinging then return end
@@ -1170,7 +1120,7 @@ local murdNotif=nil
 local murdLastShown=nil
 local function closeMurdNotif()
     if murdNotif then
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
         pcall(function() murdNotif:Destroy() end)
         murdNotif=nil
         murdLastShown=nil
@@ -1226,7 +1176,7 @@ do
                 local seen=recentKillEvent[name]
                 if flags.killFeed and not (seen and os.clock()-seen<2) then
                     feedNotify(name,nil,d.Role)
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
                 end
             end
             lastDead[name]=dead
@@ -1251,7 +1201,7 @@ bind(TeleportService.TeleportInitFailed,function(_,_,_,_)
 end)
 if VirtualUser then bind(LocalPlayer.Idled,function() if flags.antiAfk then pcall(function() VirtualUser:CaptureController(); VirtualUser:ClickButton2(Vector2.new()) end) end end) end
 
-local Window=Library:CreateWindow({Title="MONO",Footer="MM2 · Obsidian",Center=true,AutoShow=true,Resizable=true,NotifySide="Right",ShowCustomCursor=true,GlobalSearch=true})
+local Window=Library:CreateWindow({Title="TUNGHUB",Footer="MM2 · Obsidian",Center=true,AutoShow=true,Resizable=true,NotifySide="Right",ShowCustomCursor=true,GlobalSearch=true})
 hideWindow()
 local Tabs={
     Combat=Window:AddTab("Combat","crosshair"),
@@ -1282,7 +1232,7 @@ end
 do local g=Tabs.Combat:AddRightGroupbox("Aim")
     g:AddToggle("Aimbot",{Text="Aimbot",Tooltip="Hold the keybind to snap your camera to the closest enemy in your FOV.",Callback=function(v) flags.aimbot=v end})
         :AddKeyPicker("AimKey",{Default="MB2",Mode="Hold",Text="Aimbot",NoUI=false})
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
     g:AddToggle("SilentAim",{Text="Gun and Knife Silent Aim",Tooltip="Redirects shots and knife throws to the closest target in your FOV. As sheriff it only targets the murderer.",Callback=function(v) flags.silentAim=v end})
     g:AddToggle("TriggerBot",{Text="Gun Trigger Bot",Tooltip="Gun only. Automatically fires at the murderer when they enter your FOV circle and you can see them.",Callback=function(v) flags.triggerBot=v end})
     g:AddSlider("AimFov",{Text="Aim FOV",Tooltip="Radius in pixels around your cursor that counts as a valid target.",Default=120,Min=40,Max=400,Rounding=0,Callback=function(v) aimFov=v end})
@@ -1338,7 +1288,7 @@ do local g=Tabs.Teleport:AddRightGroupbox("Coins")
         if best then tpTo(best.Position); notify("Teleported to coin") else notify("No coins on map") end end})
 end
 do
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
     local ItemDB
     pcall(function() ItemDB=require(RS:WaitForChild("Database"):WaitForChild("Sync"):WaitForChild("Item")) end)
     local ACC_LINES,MM2_LINES,INV_LINES=8,7,10
@@ -1394,7 +1344,7 @@ do
         lookupBusy=true
         clearLookup("Looking up "..p.Name.."...")
         task.spawn(function()
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
             local A,M,I={},{},{}
 
             local info=httpJson("https://users.roblox.com/v1/users/"..p.UserId)
@@ -1450,7 +1400,7 @@ do
                 I[6]="Other:  "..math.max(total-rare,0)
                 I[7]="Pets:  "..countKeys(inv.Pets)
                 I[8]="Effects:  "..countKeys(inv.Effects)
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
                 I[9]="Trades:  "..countKeys(inv.TradeHistory)
                 I[10]="Bans:  "..countKeys(inv.Bans).."   ModLog:  "..countKeys(inv.ModLog)
             else
@@ -1506,7 +1456,7 @@ do local g=Tabs.Safety:AddRightGroupbox("Server")
 end
 local MenuGroup=Tabs.UI:AddLeftGroupbox("Menu")
 MenuGroup:AddButton({Text="Unload",Tooltip="Removes the menu and undoes every change it made",Func=function() Library:Unload() end})
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
 MenuGroup:AddLabel("Menu bind"):AddKeyPicker("MenuKeybind",{Default="RightShift",NoUI=true,Text="Menu keybind"})
 Library.ToggleKeybind=Options.MenuKeybind
 local MiniGui=trackGui(create("ScreenGui",{Name=rnd(),ResetOnSpawn=false,IgnoreGuiInset=false,DisplayOrder=999,Parent=mountTarget}))
@@ -1562,7 +1512,7 @@ do
         if Library.Unloaded then return origToggle(a,b) end
         local val; if type(a)=="boolean" then val=a elseif type(b)=="boolean" then val=b end
         local target=(val~=nil) and val or (not Library.Toggled)
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
         local mf=mainFrame(); local sc=mf and mf:FindFirstChildOfClass("UIScale")
         if not (mf and sc) then return origToggle(Library,target) end
         if target then
@@ -1618,7 +1568,7 @@ do
     g:AddDropdown("ThemePick",{Text="Theme",Values=themeNames,Default=1,AllowNull=false,
         Tooltip="Switches the whole colour scheme"})
     g:AddLabel("Accent colour"):AddColorPicker("AccentColor",{Default=Library.Scheme.AccentColor,
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
         Tooltip="The highlight colour used across the menu"})
     g:AddButton({Text="Save As Default",Tooltip="Loads this theme automatically next time",Func=function()
         local ok=ThemeManager:SaveDefault(Options.ThemePick.Value)
@@ -1674,7 +1624,7 @@ do
     end})
 end
 
--- Created by and originally uploaded by https://robloxscripts.com/user/Fleece
+
 pcall(function() ThemeManager:LoadDefault() end)
 pcall(function() SaveManager:LoadAutoloadConfig() end)
 
